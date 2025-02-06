@@ -1,29 +1,26 @@
 import { NextResponse } from 'next/server'
 import { searchRatelimit } from '@/lib/redis'
 import { CONFIG } from '@/lib/config'
-const BING_ENDPOINT = 'https://api.bing.microsoft.com/v7.0/search'
 
-type TimeFilter = '24h' | 'week' | 'month' | 'year' | 'all'
+const SERPER_API_ENDPOINT = 'https://google.serper.dev/search'
 
-function getFreshness(timeFilter: TimeFilter): string {
-  switch (timeFilter) {
-    case '24h':
-      return 'Day'
-    case 'week':
-      return 'Week'
-    case 'month':
-      return 'Month'
-    case 'year':
-      return 'Year'
-    default:
-      return ''
+function mapSerperToAzure(serperResponse: any) {
+  return {
+    webPages: {
+      value: serperResponse.organic?.map((result: any) => ({
+        name: result.title,
+        url: result.link,
+        snippet: result.description,
+        datePublished: new Date().toISOString() + 'Z',
+      })) || []
+    }
   }
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { query, timeFilter = 'all' } = body
+    const { query } = body
 
     if (!query) {
       return NextResponse.json(
@@ -32,7 +29,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Only check rate limit if enabled
     if (CONFIG.rateLimits.enabled) {
       const { success } = await searchRatelimit.limit(query)
       if (!success) {
@@ -43,52 +39,38 @@ export async function POST(request: Request) {
       }
     }
 
-    const subscriptionKey = process.env.AZURE_SUB_KEY
-    if (!subscriptionKey) {
+    const apiKey = process.env.SERPER_API_KEY
+
+    if (!apiKey) {
       return NextResponse.json(
         { error: 'Search API is not properly configured. Please check your environment variables.' },
         { status: 500 }
       )
     }
 
-    const params = new URLSearchParams({
-      q: query,
-      count: CONFIG.search.resultsPerPage.toString(),
-      mkt: CONFIG.search.market,
-      safeSearch: CONFIG.search.safeSearch,
-      textFormat: 'HTML',
-      textDecorations: 'true',
-    })
-
-    // Add freshness parameter if a time filter is selected
-    const freshness = getFreshness(timeFilter as TimeFilter)
-    if (freshness) {
-      params.append('freshness', freshness)
-    }
-
-    const response = await fetch(`${BING_ENDPOINT}?${params.toString()}`, {
+    const response = await fetch(SERPER_API_ENDPOINT, {
+      method: 'POST',
       headers: {
-        'Ocp-Apim-Subscription-Key': subscriptionKey,
-        'Accept-Language': 'en-US',
+        'X-API-KEY': apiKey,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        q: query,
+        num: CONFIG.search.resultsPerPage,
+      }),
     })
 
     if (!response.ok) {
-      if (response.status === 403) {
-        return NextResponse.json(
-          { error: 'Monthly search quota exceeded. Please try again next month or contact support for increased limits.' },
-          { status: 403 }
-        )
-      }
-      const errorData = await response.json().catch(() => null);
+      const errorData = await response.json().catch(() => null)
       return NextResponse.json(
-        { error: errorData?.message || `Search API returned error ${response.status}` },
+        { error: errorData?.error || `Search API returned error ${response.status}` },
         { status: response.status }
       )
     }
 
     const data = await response.json()
-    return NextResponse.json(data)
+    const azureCompatibleData = mapSerperToAzure(data)
+    return NextResponse.json(azureCompatibleData)
   } catch (error) {
     console.error('Search API error:', error)
     return NextResponse.json(
