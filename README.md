@@ -229,6 +229,9 @@ bun install
 # Azure Bing Search API key (required for web search)
 AZURE_SUB_KEY=your_azure_subscription_key
 
+# Serper dev API key (optional as a substitute for Bing)
+SERPER_API_KEY=your_serper_api_key
+
 # Google Gemini Pro API key (required for AI report generation)
 GEMINI_API_KEY=your_gemini_api_key
 
@@ -269,6 +272,12 @@ bun dev
 1. Go to [Azure Portal](https://portal.azure.com)
 2. Create a Bing Search resource
 3. Get the subscription key from "Keys and Endpoint"
+
+#### Serper API Key
+
+1. Go to [Serper](https://serper.dev/)
+2. Create a free account
+3. Generete new api key
 
 #### Google Gemini Pro API
 
