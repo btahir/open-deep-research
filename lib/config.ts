@@ -1,7 +1,7 @@
 export const CONFIG = {
   // Rate limits (requests per minute)
   rateLimits: {
-    enabled: false, // Flag to enable/disable rate limiting
+    enabled: true, // Flag to enable/disable rate limiting
     search: 10,
     contentFetch: 20,
     reportGeneration: 5,
