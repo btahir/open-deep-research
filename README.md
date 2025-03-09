@@ -147,6 +147,20 @@ To use Bing Search:
 AZURE_SUB_KEY="your-azure-key"
 ```
 
+To use SearXNG:
+make sure you have a searxng instance running on your machine.
+- SearXNG-docker
+  1. git clone https://github.com/searxng/searxng-docker.git
+  2. change  searxng/settings.yml   secret_key="change here"
+  3. Check if JSON format is allowed in your searxng/settings.yml
+  search:
+    formats:
+      - html
+      - json  #add this
+- opendeepresearch
+  1. Change the app/api/search/route.ts const SEARXNG_ENDPOINT = 'http://127.0.0.1:8080'
+
+
 ### Knowledge Base
 
 The Knowledge Base feature allows you to build a personal research library by:
