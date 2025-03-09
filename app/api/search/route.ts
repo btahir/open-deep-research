@@ -5,6 +5,7 @@ import { CONFIG } from '@/lib/config'
 const BING_ENDPOINT = 'https://api.bing.microsoft.com/v7.0/search'
 const GOOGLE_ENDPOINT = 'https://customsearch.googleapis.com/customsearch/v1'
 const EXA_ENDPOINT = 'https://api.exa.ai/search'
+const SEARXNG_ENDPOINT = 'http://127.0.0.1:8080'
 
 type TimeFilter = '24h' | 'week' | 'month' | 'year' | 'all'
 
@@ -174,6 +175,56 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error: 'Failed to fetch search results from Exa.',
+          },
+          { status: 500 }
+        )
+      }
+    }  else if (provider === 'searxng') {
+      try {
+        const params = new URLSearchParams({
+          q: query,
+          format: 'json',
+          pageno: '1',
+          language: 'all',
+          time_range: timeFilter === 'all' ? '' : timeFilter,
+          results: CONFIG.search.resultsPerPage.toString(),
+        })
+
+        const searxResponse = await fetch(
+          `${SEARXNG_ENDPOINT}?${params.toString()}`
+        )
+
+        if (!searxResponse.ok) {
+          throw new Error(`SearXNG API error: ${searxResponse.status}`)
+        }
+
+        const data = await searxResponse.json()
+
+        if (!data.results || !Array.isArray(data.results)) {
+          throw new Error('Invalid SearXNG response format')
+        }
+
+        // Transform SearXNG results to match our format
+        const transformedResults = {
+          webPages: {
+            value: data.results.map((item: any) => ({
+              id: item.url || `searx-${Math.random().toString(36).substr(2, 9)}`,
+              url: item.url,
+              name: item.title || 'Untitled',
+              snippet: item.content || item.description || '',
+              publishedDate: item.published_date || item.publishedDate,
+              engine: item.engine,
+              score: item.score,
+            })),
+          },
+        }
+
+        return NextResponse.json(transformedResults)
+      } catch (error: any) {
+        console.error('SearXNG search error:', error)
+        return NextResponse.json(
+          {
+            error: 'Failed to fetch search results from SearXNG.',
           },
           { status: 500 }
         )

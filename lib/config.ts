@@ -1,7 +1,7 @@
 export const CONFIG = {
   // Rate limits (requests per minute)
   rateLimits: {
-    enabled: true, // Flag to enable/disable rate limiting
+    enabled: false, // Flag to enable/disable rate limiting
     search: 10,
     contentFetch: 20,
     reportGeneration: 5,
@@ -12,7 +12,7 @@ export const CONFIG = {
   search: {
     resultsPerPage: 10,
     maxSelectableResults: 3,
-    provider: 'google' as 'google' | 'bing' | 'exa', // Default search provider
+    provider: 'searxng' as 'google' | 'bing' | 'exa' | 'searxng', // Default search provider
     safeSearch: {
       google: 'active' as 'active' | 'off',
       bing: 'moderate' as 'moderate' | 'strict' | 'off',
