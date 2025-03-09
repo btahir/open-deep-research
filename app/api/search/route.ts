@@ -5,7 +5,7 @@ import { CONFIG } from '@/lib/config'
 const BING_ENDPOINT = 'https://api.bing.microsoft.com/v7.0/search'
 const GOOGLE_ENDPOINT = 'https://customsearch.googleapis.com/customsearch/v1'
 const EXA_ENDPOINT = 'https://api.exa.ai/search'
-const SEARXNG_ENDPOINT = 'http://192.168.31.121:8083'
+const SEARXNG_ENDPOINT = 'http://127.0.0.1:8080'
 
 type TimeFilter = '24h' | 'week' | 'month' | 'year' | 'all'
 
