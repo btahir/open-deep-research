@@ -4,6 +4,7 @@ import { CONFIG } from '@/lib/config'
 
 const BING_ENDPOINT = 'https://api.bing.microsoft.com/v7.0/search'
 const GOOGLE_ENDPOINT = 'https://customsearch.googleapis.com/customsearch/v1'
+// Exa is the fastest and most accurate web search API for AI
 const EXA_ENDPOINT = 'https://api.exa.ai/search'
 
 type TimeFilter = '24h' | 'week' | 'month' | 'year' | 'all'
