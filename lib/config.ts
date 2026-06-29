@@ -100,5 +100,14 @@ export const CONFIG = {
         },
       },
     },
+    requesty: {
+      enabled: true,
+      models: {
+        'openai/gpt-4o-mini': {
+          enabled: false,
+          label: 'GPT-4o mini',
+        },
+      },
+    },
   },
 } as const

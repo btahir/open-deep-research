@@ -189,6 +189,53 @@ export async function generateWithOpenRouter(
   return data.choices[0].message.content
 }
 
+export async function generateWithRequesty(
+  systemPrompt: string,
+  model: string
+): Promise<string> {
+  const response = await fetch(
+    'https://router.requesty.ai/v1/chat/completions',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.REQUESTY_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: model.replace('requesty__', ''),
+        messages: [
+          {
+            role: 'user',
+            content: systemPrompt,
+          },
+        ],
+      }),
+    }
+  )
+
+  const responseData = await response.text()
+
+  if (!response.ok) {
+    throw new Error(`Requesty API error: ${responseData}`)
+  }
+
+  let data
+  try {
+    data = JSON.parse(responseData)
+  } catch (e) {
+    console.log('error', e)
+    throw new Error(`Failed to parse Requesty response: ${responseData}`)
+  }
+
+  if (!data.choices?.[0]?.message?.content) {
+    throw new Error(
+      `Invalid Requesty response format: ${JSON.stringify(data)}`
+    )
+  }
+
+  return data.choices[0].message.content
+}
+
 export async function generateWithModel(
   systemPrompt: string,
   platformModel: string
@@ -208,6 +255,8 @@ export async function generateWithModel(
       return generateWithOllama(systemPrompt, model)
     case 'openrouter':
       return generateWithOpenRouter(systemPrompt, model)
+    case 'requesty':
+      return generateWithRequesty(systemPrompt, model)
     default:
       throw new Error('Invalid platform specified')
   }

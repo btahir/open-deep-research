@@ -62,6 +62,7 @@ export type ModelVariant =
   | 'ollama__llama3.2'
   | 'ollama__deepseek-r1:14b'
   | 'openrouter__auto'
+  | 'requesty__openai/gpt-4o-mini'
 
 export type Status = {
   loading: boolean

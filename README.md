@@ -258,6 +258,10 @@ To modify these settings, update the values in `lib/config.ts`. The changes will
 
 OpenRouter provides access to various AI models through a unified API. By default, it's set to 'auto' mode which automatically selects the most suitable model, but you can configure it to use specific models of your choice by modifying the models section in the configuration.
 
+### Requesty Integration
+
+Requesty is an OpenAI-compatible LLM gateway that provides access to many models through a single API, using `provider/model` naming (for example `openai/gpt-4o-mini`). Set `REQUESTY_API_KEY` and enable the desired models in the `requesty` section of `lib/config.ts`.
+
 ### Important Note for Reasoning Models
 
 When using advanced reasoning models like OpenAI's o1 or DeepSeek Reasoner, you may need to increase the serverless function duration limit as these models typically take longer to generate comprehensive reports. The default duration might not be sufficient.
@@ -351,7 +355,10 @@ ANTHROPIC_API_KEY=your_anthropic_api_key
 DEEPSEEK_API_KEY=your_deepseek_api_key
 
 # OpenRouter API Key (Optional - if using OpenRouter as AI platform)
-OPENROUTER_API_KEY="your-openrouter-api-key"
+OPENROUTER_API_KEY="your-o...-key"
+
+# Requesty API Key (Optional - if using Requesty as AI platform)
+REQUESTY_API_KEY="your-requesty-api-key"
 
 # Upstash Redis (required for rate limiting)
 UPSTASH_REDIS_REST_URL=your_upstash_redis_url
